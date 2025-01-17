@@ -28,3 +28,8 @@ Para destruir o projeto
 terraform destroy --auto-approve -var-file=environment/dev/terraform.tfvars
 
 ```
+
+# Repositórios
+
+Repositório Central do Curso - https://github.com/msfidelis/linuxtips-curso-containers-aws
+Repositório ECS + EC2 - https://github.com/msfidelis/linuxtips-curso-containers-ecs-cluster
