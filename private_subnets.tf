@@ -1,101 +1,73 @@
-resource "aws_subnet" "private_subnet_1a" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.0.0/20"
-  availability_zone = format("%sa", var.region)
+resource "aws_eip" "eip" {
+  count = length(var.public_subnets)
 
+  domain = "vpc"
 
   tags = {
-    Name = format("%s-private-subnet-1a", var.project_name)
+    Name = format("%s-%s", var.project_name, var.public_subnets[count.index].availability_zone)
   }
 }
 
-resource "aws_subnet" "private_subnet_1b" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.16.0/20"
-  availability_zone = format("%sb", var.region)
+resource "aws_nat_gateway" "main" {
 
+  count = length(var.public_subnets)
+
+  allocation_id = aws_eip.eip[count.index].id
+
+  subnet_id = aws_subnet.public[count.index].id
 
   tags = {
-    Name = format("%s-private-subnet-1b", var.project_name)
+    Name = format("%s-%s", var.project_name, var.public_subnets[count.index].availability_zone)
   }
 }
 
-resource "aws_subnet" "private_subnet_1c" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.32.0/20"
-  availability_zone = format("%sc", var.region)
+resource "aws_subnet" "private" {
+  count = length(var.private_subnets)
 
-
-  tags = {
-    Name = format("%s-private-subnet-1c", var.project_name)
-  }
-}
-
-resource "aws_route_table" "private_internet_access_1a" {
   vpc_id = aws_vpc.main.id
 
+  cidr_block        = var.private_subnets[count.index].cidr
+  availability_zone = var.private_subnets[count.index].availability_zone
 
   tags = {
-    Name = format("%s-private-1a", var.project_name)
+    Name = var.private_subnets[count.index].name
   }
+
+  depends_on = [
+    aws_vpc_ipv4_cidr_block_association.main
+  ]
 }
 
-resource "aws_route" "private_access_1a" {
-  route_table_id         = aws_route_table.private_internet_access_1a.id
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.nat_1a.id
-  depends_on             = [aws_nat_gateway.nat_1a]
+resource "aws_route_table" "private" {
+  count = length(var.private_subnets)
 
-}
-
-resource "aws_route_table" "private_internet_access_1b" {
   vpc_id = aws_vpc.main.id
-
-
   tags = {
-    Name = format("%s-private-1b", var.project_name)
+    Name = format("%s-%s", var.project_name, var.private_subnets[count.index].name)
   }
 }
 
-resource "aws_route" "private_access_1b" {
-  route_table_id         = aws_route_table.private_internet_access_1b.id
+
+resource "aws_route" "private" {
+  count = length(var.private_subnets)
+
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.nat_1b.id
-  depends_on             = [aws_nat_gateway.nat_1b]
+
+  route_table_id = aws_route_table.private[count.index].id
+
+  gateway_id = aws_nat_gateway.main[
+    index(
+      var.public_subnets[*].availability_zone,
+      var.private_subnets[count.index].availability_zone
+    )
+  ].id
 
 }
 
-resource "aws_route_table" "private_internet_access_1c" {
-  vpc_id = aws_vpc.main.id
 
+resource "aws_route_table_association" "private" {
+  count = length(var.private_subnets)
 
-  tags = {
-    Name = format("%s-private-1c", var.project_name)
-  }
-}
-
-resource "aws_route" "private_access_1c" {
-  route_table_id         = aws_route_table.private_internet_access_1c.id
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.nat_1c.id
-  depends_on             = [aws_nat_gateway.nat_1c]
-
-}
-
-resource "aws_route_table_association" "private_1a" {
-  subnet_id      = aws_subnet.private_subnet_1a.id
-  route_table_id = aws_route_table.private_internet_access_1a.id
-  depends_on     = [aws_nat_gateway.nat_1a]
-}
-
-resource "aws_route_table_association" "private_1b" {
-  subnet_id      = aws_subnet.private_subnet_1b.id
-  route_table_id = aws_route_table.private_internet_access_1b.id
-  depends_on     = [aws_nat_gateway.nat_1b]
-}
-
-resource "aws_route_table_association" "private_1c" {
-  subnet_id      = aws_subnet.private_subnet_1c.id
-  route_table_id = aws_route_table.private_internet_access_1c.id
-  depends_on     = [aws_nat_gateway.nat_1c]
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_route_table.private[count.index].id
 }

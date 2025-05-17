@@ -1,33 +1,19 @@
-output "ssm_vpc_id" {
-  value = aws_ssm_parameter.vpc.id
+output "vpc_id" {
+  description = "SSM Parameter com o valor do vpc_id"
+  value       = aws_ssm_parameter.vpc.id
 }
 
-output "ssm_subnet_private_1a" {
-  value = aws_ssm_parameter.private_1a.id
-}
-output "ssm_subnet_private_1b" {
-  value = aws_ssm_parameter.private_1b.id
-}
-output "ssm_subnet_private_1c" {
-  value = aws_ssm_parameter.private_1c.id
+output "public_subnets" {
+  description = "SSM Parameters com os valores dos ID's das Subnets Públicas"
+  value       = aws_ssm_parameter.public_subnets[*].id
 }
 
-output "ssm_subnet_public_1a" {
-  value = aws_ssm_parameter.public_1a.id
-}
-output "ssm_subnet_public_1b" {
-  value = aws_ssm_parameter.public_1b.id
-}
-output "ssm_subnet_public_1c" {
-  value = aws_ssm_parameter.public_1c.id
+output "private_subnets" {
+  description = "SSM Parameters com os valores dos ID's das Subnets Privadas"
+  value       = aws_ssm_parameter.private_subnets[*].id
 }
 
-output "ssm_subnet_databases_1a" {
-  value = aws_ssm_parameter.databases_1a.id
-}
-output "ssm_subnet_databases_1b" {
-  value = aws_ssm_parameter.databases_1b.id
-}
-output "ssm_subnet_databases_1c" {
-  value = aws_ssm_parameter.databases_1c.id
+output "database_subnets" {
+  description = "SSM Parameters com os valores dos ID's das Subnets de Databases"
+  value       = aws_ssm_parameter.databases_subnets[*].id
 }

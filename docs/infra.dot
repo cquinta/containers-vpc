@@ -1,0 +1,44 @@
+digraph INFRA {
+  node [ color = "black", fillcolor = "#E6E6E6", height =1, style = "filled,bold,rounded", fontname = "Arial" ];
+  "aws_vpc.main" [ label = "aws_vpc.main
+(AWS::EC2::VPC)", shape =rectangle ];
+  "aws_vpc_ipv4_cidr_block_association.main" [ label = "aws_vpc_ipv4_cidr_block_association.main
+(AWS::EC2::VPCCidrBlock)", shape =rectangle ];
+  "aws_internet_gateway.main" [ label = "aws_internet_gateway.main
+(AWS::EC2::InternetGateway)", shape =rectangle, fillcolor = "#E78F81" ];
+  "aws_subnet.public" [ label = "aws_subnet.public
+(AWS::EC2::Subnet)", shape =rectangle ];
+  "aws_route_table.public_internet_access" [ label = "aws_route_table.public_internet_access
+(AWS::EC2::RouteTable)", shape =rectangle ];
+  "aws_route.public" [ label = "aws_route.public
+(AWS::EC2::Route)", shape =rectangle ];
+  "aws_route_table_association.public" [ label = "aws_route_table_association.public
+(AWS::EC2::SubnetRouteTableAssociation)", shape =rectangle ];
+  "aws_subnet.private" [ label = "aws_subnet.private
+(AWS::EC2::Subnet)", shape =rectangle ];
+  "aws_subnet.database" [ label = "aws_subnet.database
+(AWS::EC2::Subnet)", shape =rectangle ];
+  "aws_ssm_parameter.vpc" [ label = "aws_ssm_parameter.vpc
+(AWS::SSM::Parameter)", shape =rectangle ];
+  "aws_ssm_parameter.public_subnets" [ label = "aws_ssm_parameter.public_subnets
+(AWS::SSM::Parameter)", shape =rectangle ];
+  "aws_ssm_parameter.private_subnets" [ label = "aws_ssm_parameter.private_subnets
+(AWS::SSM::Parameter)", shape =rectangle ];
+  "aws_ssm_parameter.databases_subnets" [ label = "aws_ssm_parameter.databases_subnets
+(AWS::SSM::Parameter)", shape =rectangle ];
+  "aws_vpc_ipv4_cidr_block_association.main" -> "aws_vpc.main";
+  "aws_internet_gateway.main" -> "aws_vpc.main";
+  "aws_subnet.public" -> "aws_vpc.main";
+  "aws_subnet.public" -> "aws_vpc_ipv4_cidr_block_association.main";
+  "aws_route_table.public_internet_access" -> "aws_vpc.main";
+  "aws_route.public" -> "aws_route_table.public_internet_access";
+  "aws_route.public" -> "aws_internet_gateway.main";
+  "aws_route_table_association.public" -> "aws_subnet.public";
+  "aws_route_table_association.public" -> "aws_route_table.public_internet_access";
+  "aws_subnet.private" -> "aws_vpc.main";
+  "aws_subnet.database" -> "aws_vpc.main";
+  "aws_ssm_parameter.vpc" -> "aws_vpc.main";
+  "aws_ssm_parameter.public_subnets" -> "aws_subnet.public";
+  "aws_ssm_parameter.private_subnets" -> "aws_subnet.private";
+  "aws_ssm_parameter.databases_subnets" -> "aws_subnet.database";
+}

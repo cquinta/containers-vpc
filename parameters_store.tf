@@ -1,59 +1,30 @@
 resource "aws_ssm_parameter" "vpc" {
-  name  = format("/%s/vpc/vpc_id", var.project_name)
-  type  = "String"
+  name = "/${var.project_name}/vpc/id"
+  type = "String"
+
   value = aws_vpc.main.id
 }
 
-resource "aws_ssm_parameter" "private_1a" {
-  name  = format("/%s/vpc/subnet_private_1a", var.project_name)
+resource "aws_ssm_parameter" "public_subnets" {
+  count = length(aws_subnet.public)
+
+  name  = "/${var.project_name}/subnets/public/${var.public_subnets[count.index].availability_zone}/${var.public_subnets[count.index].name}"
   type  = "String"
-  value = aws_subnet.private_subnet_1a.id
+  value = aws_subnet.public[count.index].id
 }
 
-resource "aws_ssm_parameter" "private_1b" {
-  name  = format("/%s/vpc/subnet_private_1b", var.project_name)
+resource "aws_ssm_parameter" "private_subnets" {
+  count = length(aws_subnet.private)
+
+  name  = "/${var.project_name}/subnets/private/${var.private_subnets[count.index].availability_zone}/${var.private_subnets[count.index].name}"
   type  = "String"
-  value = aws_subnet.private_subnet_1b.id
+  value = aws_subnet.private[count.index].id
 }
 
-resource "aws_ssm_parameter" "private_1c" {
-  name  = format("/%s/vpc/subnet_private_1c", var.project_name)
-  type  = "String"
-  value = aws_subnet.private_subnet_1c.id
-}
+resource "aws_ssm_parameter" "databases_subnets" {
+  count = length(aws_subnet.database)
 
-resource "aws_ssm_parameter" "public_1a" {
-  name  = format("/%s/vpc/subnet_public_1a", var.project_name)
+  name  = "/${var.project_name}/subnets/databases/${var.database_subnets[count.index].availability_zone}/${var.database_subnets[count.index].name}"
   type  = "String"
-  value = aws_subnet.public_subnet_1a.id
-}
-
-resource "aws_ssm_parameter" "public_1b" {
-  name  = format("/%s/vpc/subnet_public_1b", var.project_name)
-  type  = "String"
-  value = aws_subnet.public_subnet_1b.id
-}
-
-resource "aws_ssm_parameter" "public_1c" {
-  name  = format("/%s/vpc/subnet_public_1c", var.project_name)
-  type  = "String"
-  value = aws_subnet.public_subnet_1c.id
-}
-
-resource "aws_ssm_parameter" "databases_1a" {
-  name  = format("/%s/vpc/subnet_databases_1a", var.project_name)
-  type  = "String"
-  value = aws_subnet.databases_subnet_1a.id
-}
-
-resource "aws_ssm_parameter" "databases_1b" {
-  name  = format("/%s/vpc/subnet_databases_1b", var.project_name)
-  type  = "String"
-  value = aws_subnet.databases_subnet_1b.id
-}
-
-resource "aws_ssm_parameter" "databases_1c" {
-  name  = format("/%s/vpc/subnet_databases_1c", var.project_name)
-  type  = "String"
-  value = aws_subnet.databases_subnet_1c.id
+  value = aws_subnet.database[count.index].id
 }
